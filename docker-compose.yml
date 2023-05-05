@@ -1,0 +1,45 @@
+version: '3'
+
+services:
+
+  ytdl-web-api:
+    privileged: true
+    container_name: "ytdl-web-api"
+    build:
+      context: ./server
+    ports:
+      - 8000:3000
+    env_file: .env
+    command: npm run start
+    restart: unless-stopped
+
+# Command to use for testing
+# sudo docker exec -it ytdl-web-api bash
+# s3fs -f -d bucketname -o use_path_request_style -o url=http://localhost:9000 /s3_mnt/
+# s3fs -f -d bucketname -o use_path_request_style -o url=http://minio:9000 /s3_mnt/
+# s3fs -f -d Scnein432A45612 -o nonempty -o use_path_request_style -o url=https://s3.us-west-004.backblazeb2.com /s3_mnt/
+# ffmpeg -i https://cors.tundracast.com/wbfh.tundracast.com/stream -t 60 -y test2.mp3
+  
+  
+  # Use this for local testing if needed
+  # Can also be used for someone who wishes to self host their bucket
+  # minio:
+  #     container_name: 'minio'
+  #     image: quay.io/minio/minio
+  #     volumes: 
+  #         - ./s3-data:/data
+  #     ports:
+  #         - 9000:9000
+  #         - 9001:9001
+  #     command: server /data --console-address ":9001"
+  #     env_file: .env
+
+  ytdl-web-web-server:
+      container_name: "ytdl-web-web"
+      build:
+          context: ./web
+      volumes:
+          - ./web/nginx.conf:/etc/nginx/conf.d/default.conf
+      ports:
+          - 8050:80
+      restart: unless-stopped
