@@ -1,16 +1,11 @@
 import express, { Express } from 'express';
 import session from 'express-session';
+import { test } from './routes/test';
+import { download } from './routes/YTDownload';
 
 const app: Express = express();
 const port = 3000;
 
-// What we can access these in our sessions
-// declare module 'express-session' {
-//     interface Session {
-//         email: string;
-//         ownerGroup: string;
-//     }
-// }
 
 app.use(express.json());
 app.use(session({
@@ -19,8 +14,9 @@ app.use(session({
     saveUninitialized: true
 }));
 
-app.post('/api/user/register', register());
-app.post('/api/user/login', login());
+
+app.get('/api', test());
+app.get('/api/download', download());
 
 app.listen(port, () => {
     console.log(`⚡️[server]: Server is running at https://localhost:${port}`);

@@ -1,8 +1,11 @@
-FROM node:16-bullseye
+FROM node:20-buster
 
 RUN apt-get update -qq
-RUN apt-get install -y ffmpeg
-RUN mkdir /s3-temp
+
+# Install deps such as ffmpeg, youtube dl
+RUN apt-get install -y ffmpeg curl && \
+     curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp_linux -o /usr/local/bin/yt-dlp && \
+     chmod a+rx /usr/local/bin/yt-dlp
 
 WORKDIR /app
 
