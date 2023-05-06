@@ -1,5 +1,7 @@
 FROM node:20-buster
 
+RUN mkdir -p /app/tmp
+
 RUN apt-get update -qq
 
 # Install deps such as ffmpeg, youtube dl

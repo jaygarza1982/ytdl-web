@@ -6,7 +6,6 @@ import { download } from './routes/YTDownload';
 const app: Express = express();
 const port = 3000;
 
-
 app.use(express.json());
 app.use(session({
     secret: `${process.env.SESSION_SECRET}`,

@@ -1,0 +1,14 @@
+TODO: Try album art with this ffmpeg -i input.mp3 -i cover.png -c copy -map 0 -map 1 output.mp3
+TODO: Try metadata with ffmpeg -i input.mp3 -c copy -metadata artist="Someone" output.mp3
+
+TODO: Implement
+Check video ID
+
+if we dont have it:
+    Download mp3
+    Archive it
+    Go to if we have it
+if we have it:
+    Find archive
+    Run metadata functions, functions exit if no params given
+    Send mp3

@@ -1,50 +1,37 @@
 import { Request, Response } from 'express';
-import { spawn } from 'child_process';
-import crypto from 'crypto';
+import { downloadMp3 } from '../services/YTDownload';
 
 // https://www.youtube.com/watch?v=P7iPkiyG2jQ&list=RDHuqagqnaDmY&index=4&pp=8AUB&ab_channel=ZZTop-Topic
 // http://localhost:8050/api/download?url=https://www.youtube.com/watch?v=P7iPkiyG2jQ&list=RDHuqagqnaDmY&index=4&pp=8AUB&ab_channel=ZZTop-Topic
 export const download = () => {
     return async (req: Request, res: Response) => {
-        // TODO: Use replace-in-metadata for metadata mods
-        const videoUrl: string = req.query.url + '';
-        const downloadFilename = `filename.mp3`;
-        const format = `mp3`;
+        const videoURL: string = req.query.url + '';
+        const downloadFilename = `download-filename.mp3`;
 
-        // Random filename for processing
-        const outPath = `/tmp/${crypto.randomUUID()}-out.mp3`;
-        
-        const command = 'yt-dlp';
-        const args: string[] = [
-            '--extract-audio',
-            '--audio-format',
-            format,
-            '--audio-quality',
-            '0',
-            '-o',
-            outPath,
-            videoUrl,
-        ]
+        const videoID = videoURL.substring(videoURL.indexOf('?v=') + 3, videoURL.indexOf('?v=') + 14);
 
-        const youtubeDlProcess = spawn(command, args);
+        // TODO: Check if video id already archived
 
-        youtubeDlProcess.stdout.on('data', (data) => {
-            const outMsg = `YTDL OUT: ${data.toString()}`;
-            console.log(outMsg);
-        });
-
-        youtubeDlProcess.stderr.on('data', (data) => {
-            console.error('YTDL ERR: ', data.toString());
-        });
-
-        youtubeDlProcess.on('close', (code) => {
-            if (code === 0) {
-                console.log(`Download of ${videoUrl} completed successfully`);
-                return res.download(outPath, downloadFilename);
+        downloadMp3({
+            videoURL,
+            ytdlError: (msg: string) => {
+                console.log('YTDL ERROR: ', msg);
+            },
+            ytdlOut: (msg: string) => {
+                console.log('YTDL OUT: ', msg);
+            },
+            ytdlExitFailure: (errorMsg: string) => {
+                const message = `Could not download ${videoURL}, ID: ${videoID} message: ${errorMsg}`;
+                console.log(message);
+                res.status(500).send(message);
+            },
+            ytdlExitSuccess: (outputFilePath: string) => {
+                console.log(`Successfully downloaded ${videoID}`);
+                // TODO: Archive video
+                // TODO: For metadata
+                // TODO: ffmpeg -i test.mp3 -c copy -metadata title="title meta" -metadata artist="artist meta" -metadata album="album meta" output.mp3
+                res.download(outputFilePath, downloadFilename);
             }
-
-            console.error(`Download of ${videoUrl} failed with code ${code}`);
-            res.status(500).send('Error');
         });
     }
 }
