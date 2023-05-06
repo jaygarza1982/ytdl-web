@@ -42,6 +42,7 @@ const downloadMp3 = (params: IDownloadMp3Params) => {
 
     youtubeDlProcess.on('close', async (code) => {
         if (code === 0) {
+            console.log(`Successfully downloaded ${videoID}`);
             return ytdlExitSuccess(outputFilePath);
         }
 

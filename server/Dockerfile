@@ -1,6 +1,7 @@
 FROM node:20-buster
 
 RUN mkdir -p /app/tmp
+RUN mkdir -p /app/archive
 
 RUN apt-get update -qq
 

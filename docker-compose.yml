@@ -8,6 +8,8 @@ services:
       context: ./server
     ports:
       - 8000:3000
+    volumes:
+      - ./server/archive:/app/archive
     env_file: .env
     command: npm run start
     restart: unless-stopped

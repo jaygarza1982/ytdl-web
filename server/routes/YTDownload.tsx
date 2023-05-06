@@ -1,5 +1,7 @@
 import { Request, Response } from 'express';
 import { downloadMp3 } from '../services/YTDownload';
+import { fileExists } from '../services/file';
+import { copyFile } from '../services/file';
 
 // https://www.youtube.com/watch?v=P7iPkiyG2jQ&list=RDHuqagqnaDmY&index=4&pp=8AUB&ab_channel=ZZTop-Topic
 // http://localhost:8050/api/download?url=https://www.youtube.com/watch?v=P7iPkiyG2jQ&list=RDHuqagqnaDmY&index=4&pp=8AUB&ab_channel=ZZTop-Topic
@@ -10,7 +12,19 @@ export const download = () => {
 
         const videoID = videoURL.substring(videoURL.indexOf('?v=') + 3, videoURL.indexOf('?v=') + 14);
 
-        // TODO: Check if video id already archived
+        const serveFile = (outputFilePath: string) => {
+            // TODO: For metadata
+            // TODO: ffmpeg -i test.mp3 -c copy -metadata title="title meta" -metadata artist="artist meta" -metadata album="album meta" output.mp3
+            res.download(outputFilePath, downloadFilename);
+        }
+
+        // Check if video id already archived
+        const archivePath = `/app/archive/${videoID}.mp3`;
+        if (fileExists(archivePath)) {
+            console.log(`Pulling file from archive ${archivePath}`);
+
+            return serveFile(archivePath);
+        }
 
         downloadMp3({
             videoURL,
@@ -25,12 +39,10 @@ export const download = () => {
                 console.log(message);
                 res.status(500).send(message);
             },
-            ytdlExitSuccess: (outputFilePath: string) => {
-                console.log(`Successfully downloaded ${videoID}`);
-                // TODO: Archive video
-                // TODO: For metadata
-                // TODO: ffmpeg -i test.mp3 -c copy -metadata title="title meta" -metadata artist="artist meta" -metadata album="album meta" output.mp3
-                res.download(outputFilePath, downloadFilename);
+            ytdlExitSuccess: (outputFilename) => {
+                // Archive video
+                copyFile(outputFilename, archivePath);
+                serveFile(outputFilename);
             }
         });
     }
