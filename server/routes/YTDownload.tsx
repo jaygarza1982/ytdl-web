@@ -2,12 +2,17 @@ import { Request, Response } from 'express';
 import { downloadMp3 } from '../services/YTDownload';
 import { fileExists } from '../services/file';
 import { copyFile } from '../services/file';
+import { addMetadata } from '../services/metadata';
+import crypto from 'crypto';
 
 // https://www.youtube.com/watch?v=P7iPkiyG2jQ&list=RDHuqagqnaDmY&index=4&pp=8AUB&ab_channel=ZZTop-Topic
 // http://localhost:8050/api/download?url=https://www.youtube.com/watch?v=P7iPkiyG2jQ&list=RDHuqagqnaDmY&index=4&pp=8AUB&ab_channel=ZZTop-Topic
+// http://localhost:8050/api/download?title=test%20title&artist=artiststring&url=https://www.youtube.com/watch?v=P7iPkiyG2jQ&list=RDHuqagqnaDmY&index=4&pp=8AUB&ab_channel=ZZTop-Topic
+// http://localhost:8050/api/download?title=test%20title&artist=artiststring&album=album%20string%20here&url=https://www.youtube.com/watch?v=P7iPkiyG2jQ&list=RDHuqagqnaDmY&index=4&pp=8AUB&ab_channel=ZZTop-Topic
 export const download = () => {
     return async (req: Request, res: Response) => {
         const videoURL: string = req.query.url + '';
+        const { title, artist, album } = req.query;
         const downloadFilename = `download-filename.mp3`;
 
         const videoID = videoURL.substring(videoURL.indexOf('?v=') + 3, videoURL.indexOf('?v=') + 14);
@@ -15,7 +20,30 @@ export const download = () => {
         const serveFile = (outputFilePath: string) => {
             // TODO: For metadata
             // TODO: ffmpeg -i test.mp3 -c copy -metadata title="title meta" -metadata artist="artist meta" -metadata album="album meta" output.mp3
-            res.download(outputFilePath, downloadFilename);
+            const tempFilePath = `/app/tmp/${crypto.randomUUID()}.mp3`;
+            addMetadata(
+                {
+                    inputFilePath: outputFilePath,
+                    outputFilePath: tempFilePath,
+                    metadata: {
+                        title: String(title || ''),
+                        album: String(album || ''),
+                        artist: String(artist || '')
+                    },
+                    ffmpegOut: (msg: string) => {
+                        console.log(`FFMPEG META OUT: ${msg}`);
+                    },
+                    ffmpegError: (msg: string) => {
+                        console.log(`FFMPEG META ERR: ${msg}`);
+                    },
+                    ffmpegExitSuccess: () => {
+                        res.download(tempFilePath, downloadFilename);
+                    },
+                    ffmpegExitFailure: (errorMessage: string) => {
+                        console.log(errorMessage);
+                    }
+                }
+            );
         }
 
         // Check if video id already archived
