@@ -1,4 +1,6 @@
 import { spawn } from 'child_process';
+import { writeToFile } from './file';
+import crypto from 'crypto';
 
 interface IMetadata {
     title: string;
@@ -19,23 +21,27 @@ interface IAddMetadataParams {
 const addMetadata = (params: IAddMetadataParams) => {
     const { inputFilePath, outputFilePath, metadata, ffmpegOut, ffmpegError, ffmpegExitSuccess, ffmpegExitFailure } = params;
     const { title, artist, album } = metadata;
-    
-    const command = 'ffmpeg';
-    const args: string[] = [
-        `-i`,
-        inputFilePath,
-        `-c`,
-        `copy`,
-        `-metadata`,
-        `title=\"${title}\"`,
-        `-metadata`,
-        `artist=\"${artist}\"`,
-        `-metadata`,
-        `album=\"${album}\"`,
-        outputFilePath
-    ]
 
-    const ffmpegProcess = spawn(command, args);
+    let ffmpegCommand = `ffmpeg -i `;
+    ffmpegCommand += `"${inputFilePath}" `;
+    ffmpegCommand += `-c `;
+    ffmpegCommand += `copy `;
+    ffmpegCommand += `-metadata `;
+    ffmpegCommand += `title="${title}" `;
+    ffmpegCommand += `-metadata `;
+    ffmpegCommand += `artist="${artist}" `;
+    ffmpegCommand += `-metadata `;
+    ffmpegCommand += `album="${album}" `;
+    ffmpegCommand += `"${outputFilePath}" `;
+
+    const tempCommandFile = `/app/tmp/${crypto.randomUUID()}.sh`;
+    try {
+        writeToFile(tempCommandFile, ffmpegCommand);
+    } catch (error) {
+        console.log(`Could not write metadata because the file ${tempCommandFile} could not be written. Reason ${error}`);
+    }
+
+    const ffmpegProcess = spawn('bash', [tempCommandFile]);
 
     ffmpegProcess.stdout.on('data', (data) => {
         ffmpegOut(data.toString());
