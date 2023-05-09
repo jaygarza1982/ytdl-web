@@ -38,7 +38,8 @@ const addMetadata = (params: IAddMetadataParams) => {
     try {
         writeToFile(tempCommandFile, ffmpegCommand);
     } catch (error) {
-        console.log(`Could not write metadata because the file ${tempCommandFile} could not be written. Reason ${error}`);
+        const failureMessage = `Could not write metadata because the file ${tempCommandFile} could not be written. Reason ${error}`;
+        return ffmpegExitFailure(failureMessage);
     }
 
     const ffmpegProcess = spawn('bash', [tempCommandFile]);
