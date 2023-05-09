@@ -34,6 +34,8 @@ const addMetadata = (params: IAddMetadataParams) => {
     ffmpegCommand += `album="${album}" `;
     ffmpegCommand += `"${outputFilePath}" `;
 
+    // We write to a shell script file instead of running the command directly because we cannot use quotes properly
+    // In the metadata the quotes will appear without this method
     const tempCommandFile = `/app/tmp/${crypto.randomUUID()}.sh`;
     try {
         writeToFile(tempCommandFile, ffmpegCommand);
