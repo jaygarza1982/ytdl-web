@@ -18,3 +18,9 @@ body {
     margin-top: 30px;
     display: none;
 }
+
+#download-progress-terminal {
+    height: 70vh;
+    overflow: scroll;
+    display: none;
+}
