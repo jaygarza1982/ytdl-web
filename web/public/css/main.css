@@ -1,0 +1,15 @@
+
+body {
+    padding: 30px 15% 0px;
+}
+
+.download-type-options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    width: 70vw;
+    justify-items: center;
+}
+
+.download-btn {
+    margin-top: 50px;
+}

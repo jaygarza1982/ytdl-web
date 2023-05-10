@@ -1,12 +1,46 @@
-<!DOCTYPE html>
+<!DOCTYPE htext>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/pico.min.css">
+    <link rel="stylesheet" href="css/main.css">
     <title>YouTube DL Web</title>
 </head>
+
 <body>
-    <h1>Hello, World!</h1>
+    <label for="url">YouTube URL</label>
+    <input type="text" id="url" name="url" placeholder="">
+
+    <label for="filename">Filename</label>
+    <input type="text" id="filename" name="filename" placeholder="Filename">
+
+    <label for="title">Title</label>
+    <input type="text" id="title" name="title" placeholder="Title">
+
+    <label for="artist">Artist</label>
+    <input type="text" id="artist" name="artist" placeholder="Artist">
+
+    <label for="album">Album</label>
+    <input type="text" id="album" name="album" placeholder="Album">
+
+    <fieldset>
+        <legend>Type</legend>
+        <div class="download-type-options">
+            <label for="mp3">
+                <input type="radio" id="mp3" name="size" value="mp3" checked>
+                mp3
+            </label>
+            <label for="mp4">
+                <input type="radio" id="mp4" name="size" value="mp4">
+                mp4
+            </label>
+        </div>
+    </fieldset>
+
+    <button id="download-btn" class="download-btn" type="button">Download</button>
 </body>
+
 </html>
