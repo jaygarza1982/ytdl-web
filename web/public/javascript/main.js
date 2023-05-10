@@ -1,6 +1,8 @@
 
 const mp3Download = async () => {
     try {
+        document.getElementById('progress-bar').style.display = 'block';
+
         const url = document.getElementById('url').value;
         const filename = document.getElementById('filename').value;
         const title = document.getElementById('title').value;
@@ -18,6 +20,8 @@ const mp3Download = async () => {
         dummyLink.download = filename || 'filename.mp3';
         document.body.appendChild(dummyLink);
         dummyLink.click();
+
+        document.getElementById('progress-bar').style.display = 'none';
     } catch (error) {
         console.log(`Unable to get MP3 file ${error}`);
     }

@@ -13,3 +13,8 @@ body {
 .download-btn {
     margin-top: 50px;
 }
+
+#progress-bar {
+    margin-top: 30px;
+    display: none;
+}
