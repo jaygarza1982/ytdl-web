@@ -8,14 +8,6 @@ import crypto from 'crypto';
 const app: Express = express();
 const port = 3000;
 
-// What we can access these in our sessions
-declare module 'express-session' {
-    interface Session {
-        email: string;
-        ownerGroup: string;
-    }
-}
-
 const clients = new Map<string, WebSocket>();
 
 const wss = new WebSocketServer({
@@ -23,7 +15,7 @@ const wss = new WebSocketServer({
 });
 
 wss.on('error', console.error);
-wss.on('connection', (socket, request) => {
+wss.on('connection', (socket) => {
     // TODO: Destory sockets
     // TODO: Pass clients to download API so it can send as it console logs
     // TODO: Frontend will save UUID on first message received and pass download API
@@ -32,10 +24,14 @@ wss.on('connection', (socket, request) => {
 
     socket.on('error', console.error);
     socket.on('unexpected-response', console.error);
+    socket.on('close', () => {
+        console.log(`Closing socket ${UUID}`);
 
-    socket.send(UUID);
-
+        clients.delete(UUID);
+    });
+    
     clients.set(UUID, socket);
+    socket.send(UUID);
 });
 
 app.use(express.json());
@@ -47,7 +43,7 @@ app.use(session({
 
 
 app.get('/api', test());
-app.get('/api/download', download());
+app.get('/api/download', download(clients));
 
 app.listen(port, () => {
     console.log(`⚡️[server]: Server is running at https://localhost:${port}`);
