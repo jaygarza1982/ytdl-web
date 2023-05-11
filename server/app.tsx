@@ -16,10 +16,6 @@ const wss = new WebSocketServer({
 
 wss.on('error', console.error);
 wss.on('connection', (socket) => {
-    // TODO: Destory sockets
-    // TODO: Pass clients to download API so it can send as it console logs
-    // TODO: Frontend will save UUID on first message received and pass download API
-
     const UUID = crypto.randomUUID();
 
     socket.on('error', console.error);
