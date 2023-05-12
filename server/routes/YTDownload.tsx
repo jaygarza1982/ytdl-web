@@ -6,15 +6,10 @@ import { addMetadata } from '../services/metadata';
 import crypto from 'crypto';
 import { WebSocket } from 'ws';
 
-// https://www.youtube.com/watch?v=P7iPkiyG2jQ&list=RDHuqagqnaDmY&index=4&pp=8AUB&ab_channel=ZZTop-Topic
-// http://localhost:8050/api/download?url=https://www.youtube.com/watch?v=P7iPkiyG2jQ&list=RDHuqagqnaDmY&index=4&pp=8AUB&ab_channel=ZZTop-Topic
-// http://localhost:8050/api/download?title=test%20title&artist=artiststring&url=https://www.youtube.com/watch?v=P7iPkiyG2jQ&list=RDHuqagqnaDmY&index=4&pp=8AUB&ab_channel=ZZTop-Topic
-// http://localhost:8050/api/download?title=test%20title&artist=artiststring&album=album%20string%20here&url=https://www.youtube.com/watch?v=P7iPkiyG2jQ&list=RDHuqagqnaDmY&index=4&pp=8AUB&ab_channel=ZZTop-Topic
-// http://localhost:8050/api/download?title=test%20title&artist=artiststring&album=&url=https://www.youtube.com/watch?v=P7iPkiyG2jQ&list=RDHuqagqnaDmY&index=4&pp=8AUB&ab_channel=ZZTop-Topic
 export const download = (clients: Map<string, WebSocket>) => {
     return async (req: Request, res: Response) => {
         const videoURL: string = req.query.url + '';
-        const { title, artist, album, uuid } = req.query;
+        const { title, artist, album, uuid, artid } = req.query;
         const wsClient = clients.get(`${uuid}`);
 
         const downloadFilename = `download-filename.mp3`;
@@ -44,7 +39,11 @@ export const download = (clients: Map<string, WebSocket>) => {
                         wsClient?.send(message);
                     },
                     ffmpegExitSuccess: () => {
-                        res.download(tempFilePath, downloadFilename);
+                        if (artid === '') {
+                            return res.download(tempFilePath, downloadFilename);
+                        }
+
+                        // TODO: Set album art here
                     },
                     ffmpegExitFailure: (errorMessage: string) => {
                         console.log(errorMessage);
