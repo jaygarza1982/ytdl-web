@@ -11,10 +11,13 @@ const port = 3000;
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        cb(null, '/app/tmp')
+        cb(null, '/app/tmp');
     },
     filename: function (req, file, cb) {
-        cb(null, `${file.fieldname}-${Date.now()}`);
+        const { originalname } = file;
+        const fileExt = originalname.split('.').pop();
+
+        cb(null, `${crypto.randomUUID()}-art.${fileExt}`);
     }
 });
 
@@ -53,7 +56,7 @@ app.use(session({
 app.get('/api', test());
 app.get('/api/download', download(clients));
 app.post('/api/upload-image', upload.single('image'), (req, res) => {
-    res.send();
+    res.send(req.file?.path);
 });
 
 app.listen(port, () => {

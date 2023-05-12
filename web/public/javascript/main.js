@@ -34,7 +34,7 @@ const mp3Download = async () => {
         const artist = document.getElementById('artist').value;
         const album = document.getElementById('album').value;
 
-        const fetchResult = await fetch(`/api/download?uuid=${clientUUID}&album=${album}&artist=${artist}&title=${title}&url=${url}`);
+        const fetchResult = await fetch(`/api/download?uuid=${clientUUID}&artid=${albumArtID}&album=${album}&artist=${artist}&title=${title}&url=${url}`);
         if (fetchResult.status !== 200) {
             throw new Error(`Download failed with status ${fetchResult.status} from server`);
         }
@@ -75,6 +75,11 @@ fileInput.addEventListener('change', async e => {
             console.log('Unable to upload file. Status returned ', fetchReq.status);
             return;
         }
+
+        // Set our album art string to where it lives on the server
+        const albumArtServerPath = await fetchReq.text();
+        albumArtID = albumArtServerPath;
+        console.log('Album art ID:', albumArtID);
 
         // Show the uploaded file
         const fr = new FileReader();
