@@ -4,6 +4,11 @@ let clientUUID = '';
 
 const progressTerminal = document.getElementById('download-progress-terminal');
 
+// TODO: Pass this to download API to set the art. This should be the filename of the uploaded art
+let albumArtID = '';
+const fileInput = document.getElementById('image');
+const albumArtImage = document.getElementById('album-art');
+
 webSocket.onmessage = (event) => {
     console.log(event.data);
 
@@ -30,6 +35,9 @@ const mp3Download = async () => {
         const album = document.getElementById('album').value;
 
         const fetchResult = await fetch(`/api/download?uuid=${clientUUID}&album=${album}&artist=${artist}&title=${title}&url=${url}`);
+        if (fetchResult.status !== 200) {
+            throw new Error(`Download failed with status ${fetchResult.status} from server`);
+        }
 
         const fileBlob = await fetchResult.blob();
 
@@ -50,3 +58,33 @@ const mp3Download = async () => {
 document.getElementById('download-btn').onclick = () => {
     mp3Download();
 }
+
+fileInput.addEventListener('change', async e => {
+    try {
+        const file = e.target.files[0];
+
+        const formData = new FormData();
+        formData.append('image', file);
+
+        const fetchReq = await fetch('/api/upload-image', {
+            method: 'POST',
+            body: formData
+        });
+
+        if (fetchReq.status !== 200) {
+            console.log('Unable to upload file. Status returned ', fetchReq.status);
+            return;
+        }
+
+        // Show the uploaded file
+        const fr = new FileReader();
+        fr.onload = function () {
+            albumArtImage.src = fr.result;
+            albumArtImage.style.display = 'block';
+        }
+
+        fr.readAsDataURL(file);
+    } catch (error) {
+        console.log(`Could not upload file ${error}`);
+    }
+});

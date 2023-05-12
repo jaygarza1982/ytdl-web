@@ -24,3 +24,13 @@ body {
     overflow: scroll;
     display: none;
 }
+
+#album-art {
+    display: none;
+    height: 30vh;
+}
+
+.album-art-container {
+    display: grid;
+    justify-content: center;
+}

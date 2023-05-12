@@ -4,10 +4,22 @@ import { test } from './routes/test';
 import { download } from './routes/YTDownload';
 import { WebSocketServer, WebSocket } from 'ws';
 import crypto from 'crypto';
+import multer from 'multer';
 
 const app: Express = express();
 const port = 3000;
 
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, '/app/tmp')
+    },
+    filename: function (req, file, cb) {
+        cb(null, `${file.fieldname}-${Date.now()}`);
+    }
+});
+
+const upload = multer({ storage: storage });
+  
 const clients = new Map<string, WebSocket>();
 
 const wss = new WebSocketServer({
@@ -40,6 +52,9 @@ app.use(session({
 
 app.get('/api', test());
 app.get('/api/download', download(clients));
+app.post('/api/upload-image', upload.single('image'), (req, res) => {
+    res.send();
+});
 
 app.listen(port, () => {
     console.log(`⚡️[server]: Server is running at https://localhost:${port}`);
