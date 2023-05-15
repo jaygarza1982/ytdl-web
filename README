@@ -1,1 +1,3 @@
-TODO: Try album art with this ffmpeg -i input.mp3 -i cover.png -c copy -map 0 -map 1 output.mp3
+TODO: Download mp4:
+Different API
+Hide metadata options in frontend on radio button click
