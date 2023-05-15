@@ -2,6 +2,8 @@ TODO: Download mp4:
 Different API
 Hide metadata options in frontend on radio button click
 
+TODO: Websocket URL should go to window URL and not localhost
+
 TODO: Get page title and suggest filename
 
 TODO: String user input before running shell scripts
