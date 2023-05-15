@@ -44,6 +44,8 @@ const addMetadata = (params: IAddMetadataParams) => {
     ffmpegCommand += `album="${album}" `;
     ffmpegCommand += `"${outputFilePath}" `;
 
+    console.log(`Running meta command "${ffmpegCommand}"`);
+
     // We write to a shell script file instead of running the command directly because we cannot use quotes properly
     // In the metadata the quotes will appear without this method
     const tempCommandFile = `/app/tmp/${crypto.randomUUID()}.sh`;
@@ -88,6 +90,8 @@ const addAlbumArt = (params: IAddAlbumArtParams) => {
     ffmpegCommand += `1 `;
     ffmpegCommand += `"${outputFilePath}" `;
 
+    console.log(`Running album art command "${ffmpegCommand}"`);
+
     // We write to a shell script file instead of running the command directly because we cannot use quotes properly
     // In the metadata the quotes will appear without this method
     const tempCommandFile = `/app/tmp/${crypto.randomUUID()}.sh`;
@@ -117,4 +121,4 @@ const addAlbumArt = (params: IAddAlbumArtParams) => {
     });
 }
 
-export { addMetadata }
+export { addMetadata, addAlbumArt }

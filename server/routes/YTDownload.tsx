@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import { downloadMp3 } from '../services/YTDownload';
 import { fileExists } from '../services/file';
 import { copyFile } from '../services/file';
-import { addMetadata } from '../services/metadata';
+import { addAlbumArt, addMetadata } from '../services/metadata';
 import crypto from 'crypto';
 import { WebSocket } from 'ws';
 
@@ -17,12 +17,12 @@ export const download = (clients: Map<string, WebSocket>) => {
         const videoID = videoURL.substring(videoURL.indexOf('?v=') + 3, videoURL.indexOf('?v=') + 14);
 
         const serveFile = (outputFilePath: string) => {
-            const tempFilePath = `/app/tmp/${crypto.randomUUID()}.mp3`;
+            const tempMetaFilePath = `/app/tmp/${crypto.randomUUID()}.mp3`;
 
             addMetadata(
                 {
                     inputFilePath: outputFilePath,
-                    outputFilePath: tempFilePath,
+                    outputFilePath: tempMetaFilePath,
                     metadata: {
                         title: String(title || ''),
                         album: String(album || ''),
@@ -39,11 +39,36 @@ export const download = (clients: Map<string, WebSocket>) => {
                         wsClient?.send(message);
                     },
                     ffmpegExitSuccess: () => {
+                        // If we did not get an art path, download the file here
                         if (artid === '') {
-                            return res.download(tempFilePath, downloadFilename);
+                            return res.download(tempMetaFilePath, downloadFilename);
                         }
 
-                        // TODO: Set album art here
+                        const tempArtFilePath = `/app/tmp/${crypto.randomUUID()}.mp3`;
+
+                        addAlbumArt({
+                            inputFilePath: tempMetaFilePath,
+                            outputFilePath: tempArtFilePath,
+                            artFilePath: String(artid || ''),
+                            ffmpegOut: (msg: string) => {
+                                const message = `FFMPEG META OUT: ${msg}`;
+                                console.log(message);
+                                wsClient?.send(message);
+                            },
+                            ffmpegError: (msg: string) => {
+                                const message = `FFMPEG META ERR: ${msg}`;
+                                console.log(message);
+                                wsClient?.send(message);
+                            },
+                            ffmpegExitSuccess: () => {
+                                // Download the final file
+                                return res.download(tempArtFilePath, 'download.mp3');
+                            },
+                            ffmpegExitFailure: (errorMessage: string) => {
+                                console.log(errorMessage);
+                                wsClient?.send(errorMessage);
+                            },
+                        });
                     },
                     ffmpegExitFailure: (errorMessage: string) => {
                         console.log(errorMessage);
