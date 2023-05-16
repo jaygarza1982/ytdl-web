@@ -1,5 +1,9 @@
 
-const webSocket = new WebSocket('ws://localhost:8050/ws');
+const { origin, protocol } = window.location;
+
+const https = protocol.includes('https');
+
+const webSocket = new WebSocket(`${https ? 'wss' : 'ws'}://${origin.split('//').pop()}/ws`);
 let clientUUID = '';
 
 const progressTerminal = document.getElementById('download-progress-terminal');
