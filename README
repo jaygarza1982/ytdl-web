@@ -1,3 +1,15 @@
+Caddyfile implementation:
+
+ytdl.jakegarza.rocks {
+	reverse_proxy localhost:8051
+	
+	@ws {
+		header Connection *Upgrade*
+		header Upgrade websocket
+	}
+}
+
+
 TODO: Download mp4:
 Different API
 Hide metadata options in frontend on radio button click
@@ -7,3 +19,5 @@ TODO: Websocket URL should go to window URL and not localhost
 TODO: Get page title and suggest filename
 
 TODO: String user input before running shell scripts
+
+TODO: Delete tmp files after use
