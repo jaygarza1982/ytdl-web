@@ -1,7 +1,7 @@
 import express, { Express } from 'express';
 import session from 'express-session';
 import { test } from './routes/test';
-import { download } from './routes/YTDownload';
+import { download, downloadVideo } from './routes/YTDownload';
 import { WebSocketServer, WebSocket } from 'ws';
 import crypto from 'crypto';
 import multer from 'multer';
@@ -55,6 +55,7 @@ app.use(session({
 
 app.get('/api', test());
 app.get('/api/download', download(clients));
+app.get('/api/download-video', downloadVideo(clients));
 app.post('/api/upload-image', upload.single('image'), (req, res) => {
     res.send(req.file?.path);
 });

@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { downloadMp3 } from '../services/YTDownload';
+import { downloadMp3, downloadMp4 } from '../services/YTDownload';
 import { deleteFile, fileExists } from '../services/file';
 import { copyFile } from '../services/file';
 import { addAlbumArt, addMetadata } from '../services/metadata';
@@ -115,6 +115,49 @@ export const download = (clients: Map<string, WebSocket>) => {
                 // Archive video
                 copyFile(outputFilename, archivePath);
                 serveFile(outputFilename);
+            }
+        });
+    }
+}
+
+export const downloadVideo = (clients: Map<string, WebSocket>) => {
+    return async (req: Request, res: Response) => {
+        const videoURL: string = req.query.url + '';
+        const { uuid } = req.query;
+        const wsClient = clients.get(`${uuid}`);
+
+        const videoID = videoURL.substring(videoURL.indexOf('?v=') + 3, videoURL.indexOf('?v=') + 14);
+
+        // Check if video id already archived
+        const archivePath = `/app/archive/${videoID}.mp4`;
+        if (fileExists(archivePath)) {
+            console.log(`Pulling file from archive ${archivePath}`);
+
+            return res.download(archivePath);
+        }
+
+        downloadMp4({
+            videoURL,
+            ytdlError: (msg: string) => {
+                const message = `YTDL ERROR: ${msg}`;
+                console.log(message);
+                wsClient?.send(message);
+            },
+            ytdlOut: (msg: string) => {
+                const message = `YTDL OUT: ${msg}`;
+                console.log(message);
+                wsClient?.send(message);
+            },
+            ytdlExitFailure: (errorMsg: string) => {
+                const message = `Could not download ${videoURL}, ID: ${videoID} message: ${errorMsg}`;
+                console.log(message);
+                wsClient?.send(message);
+                res.status(500).send(message);
+            },
+            ytdlExitSuccess: (outputFilename) => {
+                // Archive video
+                copyFile(outputFilename, archivePath);
+                res.download(outputFilename);
             }
         });
     }

@@ -17,3 +17,5 @@ Hide metadata options in frontend on radio button click
 TODO: Get page title and suggest filename
 
 TODO: String user input before running shell scripts
+
+TODO: Delete tmp video files after sending download
