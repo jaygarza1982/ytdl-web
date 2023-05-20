@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { downloadMp3 } from '../services/YTDownload';
-import { fileExists } from '../services/file';
+import { deleteFile, fileExists } from '../services/file';
 import { copyFile } from '../services/file';
 import { addAlbumArt, addMetadata } from '../services/metadata';
 import crypto from 'crypto';
@@ -41,7 +41,10 @@ export const download = (clients: Map<string, WebSocket>) => {
                     ffmpegExitSuccess: () => {
                         // If we did not get an art path, download the file here
                         if (artid === '') {
-                            return res.download(tempMetaFilePath, downloadFilename);
+                            res.download(tempMetaFilePath, downloadFilename, (err) => {
+                                // Cleanup
+                                deleteFile(tempMetaFilePath);
+                            });
                         }
 
                         const tempArtFilePath = `/app/tmp/${crypto.randomUUID()}.mp3`;
@@ -62,7 +65,11 @@ export const download = (clients: Map<string, WebSocket>) => {
                             },
                             ffmpegExitSuccess: () => {
                                 // Download the final file
-                                return res.download(tempArtFilePath, 'download.mp3');
+                                res.download(tempArtFilePath, 'download.mp3', (err) => {
+                                    // Cleanup
+                                    deleteFile(tempArtFilePath);
+                                    deleteFile(tempMetaFilePath);
+                                });
                             },
                             ffmpegExitFailure: (errorMessage: string) => {
                                 console.log(errorMessage);

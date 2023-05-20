@@ -1,5 +1,5 @@
 import { spawn } from 'child_process';
-import { writeToFile } from './file';
+import { deleteFile, writeToFile } from './file';
 import crypto from 'crypto';
 
 interface IMetadata {
@@ -67,6 +67,9 @@ const addMetadata = (params: IAddMetadataParams) => {
     });
 
     ffmpegProcess.on('close', (code) => {
+        // Cleanup
+        deleteFile(tempCommandFile);
+
         if (code === 0) {
             return ffmpegExitSuccess();
         }
@@ -113,6 +116,10 @@ const addAlbumArt = (params: IAddAlbumArtParams) => {
     });
 
     ffmpegProcess.on('close', (code) => {
+        // Cleanup
+        deleteFile(tempCommandFile);
+        deleteFile(artFilePath);
+
         if (code === 0) {
             return ffmpegExitSuccess();
         }

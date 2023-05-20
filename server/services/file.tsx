@@ -20,4 +20,12 @@ const writeToFile = (path: string, contents: string) => {
     fs.writeFileSync(path, contents);
 }
 
-export { copyFile, fileExists, writeToFile }
+const deleteFile = (path: string) => {
+    try {
+        fs.unlinkSync(path);
+    } catch (error) {
+        console.log(`Could not delete file "${path}". ${error}`);
+    }
+}
+
+export { copyFile, fileExists, writeToFile, deleteFile }
