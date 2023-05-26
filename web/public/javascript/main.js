@@ -12,6 +12,7 @@ const progressTerminal = document.getElementById('download-progress-terminal');
 let albumArtID = '';
 const fileInput = document.getElementById('image');
 const albumArtImage = document.getElementById('album-art');
+const mp3RadioButton = document.getElementById('mp3');
 
 webSocket.onmessage = (event) => {
     console.log(event.data);
@@ -59,8 +60,42 @@ const mp3Download = async () => {
     }
 }
 
+const videoDownload = async () => {
+    try {
+        document.getElementById('progress-bar').style.display = 'block';
+        progressTerminal.innerText = '';
+
+        const url = document.getElementById('url').value;
+        const filename = document.getElementById('filename').value;
+
+        const fetchResult = await fetch(`/api/download-video?uuid=${clientUUID}&url=${url}`);
+        if (fetchResult.status !== 200) {
+            throw new Error(`Download failed with status ${fetchResult.status} from server`);
+        }
+
+        const fileBlob = await fetchResult.blob();
+
+        const fileBlobURL = URL.createObjectURL(fileBlob);
+        
+        const dummyLink = document.createElement('a');
+        dummyLink.href = fileBlobURL;
+        dummyLink.download = filename || 'filename.mp4';
+        document.body.appendChild(dummyLink);
+        dummyLink.click();
+
+        document.getElementById('progress-bar').style.display = 'none';
+    } catch (error) {
+        console.log(`Unable to get MP3 file ${error}`);
+    }
+}
+
 document.getElementById('download-btn').onclick = () => {
-    mp3Download();
+    if (mp3RadioButton.checked) {
+        mp3Download();
+        return;
+    }
+
+    videoDownload();
 }
 
 fileInput.addEventListener('change', async e => {
