@@ -18,11 +18,11 @@
         <legend>Type</legend>
         <div class="download-type-options">
             <label for="mp3">
-                <input type="radio" id="mp3" name="download-type" value="mp3" checked>
+                <input onclick="downloadTypeRadioClick()" type="radio" id="mp3" name="download-type" value="mp3" checked>
                 mp3
             </label>
             <label for="mp4">
-                <input type="radio" id="mp4" name="download-type" value="mp4">
+                <input onclick="downloadTypeRadioClick()" type="radio" id="mp4" name="download-type" value="mp4">
                 mp4
             </label>
         </div>
@@ -31,19 +31,21 @@
     <label for="filename">Filename</label>
     <input type="text" id="filename" name="filename" placeholder="Filename">
 
-    <label for="title">Title</label>
-    <input type="text" id="title" name="title" placeholder="Title">
-
-    <label for="artist">Artist</label>
-    <input type="text" id="artist" name="artist" placeholder="Artist">
-
-    <label for="album">Album</label>
-    <input type="text" id="album" name="album" placeholder="Album">
-
-    <label for="image">Album Art</label>
-    <input type="file" id="image" name="image" accept="image/*" />
-    <div class="album-art-container">
-        <img id="album-art" src="" alt="uploaded album art">
+    <div id="mp3-metadata-fields">
+        <label for="title">Title</label>
+        <input type="text" id="title" name="title" placeholder="Title">
+    
+        <label for="artist">Artist</label>
+        <input type="text" id="artist" name="artist" placeholder="Artist">
+    
+        <label for="album">Album</label>
+        <input type="text" id="album" name="album" placeholder="Album">
+    
+        <label for="image">Album Art</label>
+        <input type="file" id="image" name="image" accept="image/*" />
+        <div class="album-art-container">
+            <img id="album-art" src="" alt="uploaded album art">
+        </div>
     </div>
 
     <div id="progress-bar">

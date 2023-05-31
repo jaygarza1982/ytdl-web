@@ -13,6 +13,18 @@ let albumArtID = '';
 const fileInput = document.getElementById('image');
 const albumArtImage = document.getElementById('album-art');
 const mp3RadioButton = document.getElementById('mp3');
+const mp4RadioButton = document.getElementById('mp4');
+const mp3MetadataFields = document.getElementById('mp3-metadata-fields');
+
+// Show / hide mp3 metadata fields
+const downloadTypeRadioClick = () => {
+    if (mp3RadioButton.checked) {
+        mp3MetadataFields.style.display = 'block';
+        return;
+    }
+
+    mp3MetadataFields.style.display = 'none';
+}
 
 webSocket.onmessage = (event) => {
     console.log(event.data);
