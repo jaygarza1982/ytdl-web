@@ -39,9 +39,9 @@ export const download = (clients: Map<string, WebSocket>) => {
                         wsClient?.send(message);
                     },
                     ffmpegExitSuccess: () => {
-                        // If we did not get an art path, download the file here
+                        // If we did not get an art path, download the file here and return
                         if (artid === '') {
-                            res.download(tempMetaFilePath, downloadFilename, (err) => {
+                            return res.download(tempMetaFilePath, downloadFilename, (err) => {
                                 // Cleanup
                                 deleteFile(tempMetaFilePath);
                             });
