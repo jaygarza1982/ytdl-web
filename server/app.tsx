@@ -5,6 +5,25 @@ import { download, downloadVideo } from './routes/YTDownload';
 import { WebSocketServer, WebSocket } from 'ws';
 import crypto from 'crypto';
 import multer from 'multer';
+import { updateYTDL } from './services/YTDLUpdater';
+
+// Update YTDL binary every 10 min
+setInterval(() => {
+    updateYTDL({
+        updateOut: (msg: string) => {
+            console.log(`YTDL update out: ${msg}`);
+        },
+        updateError: (msg: string) => {
+            console.log(`YTDL update error: ${msg}`);
+        },
+        updateExitSuccess: () => {
+            console.log(`Was able to update the YTDL binary successfully at ${new Date()}`);
+        },
+        updateExitFailure: (errorMessage: string) => {
+            console.log(`YTDL exit failure: ${errorMessage}`);
+        }
+    });
+}, 10 * 60 * 1000);
 
 const app: Express = express();
 const port = 3000;
