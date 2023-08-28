@@ -12,6 +12,10 @@ services:
       - ./server/archive:/app/archive
     env_file: .env
     command: npm run start
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m"
     restart: unless-stopped
 
   ytdl-web-web-server:
