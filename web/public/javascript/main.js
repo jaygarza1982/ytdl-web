@@ -46,7 +46,7 @@ const mp3Download = async () => {
         progressTerminal.innerText = '';
 
         const url = document.getElementById('url').value;
-        const filename = document.getElementById('filename').value;
+        const filename = document.getElementById('filename').value || 'filename.mp3';
         const title = document.getElementById('title').value;
         const artist = document.getElementById('artist').value;
         const album = document.getElementById('album').value;
@@ -62,7 +62,11 @@ const mp3Download = async () => {
         
         const dummyLink = document.createElement('a');
         dummyLink.href = fileBlobURL;
-        dummyLink.download = filename || 'filename.mp3';
+
+        // Append '.mp3' to filename if not there
+        const finalFilename = filename.endsWith('.mp3') ? filename : filename + '.mp3'
+
+        dummyLink.download = finalFilename;
         document.body.appendChild(dummyLink);
         dummyLink.click();
 
