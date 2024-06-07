@@ -5,6 +5,7 @@ import { copyFile } from '../services/file';
 import { addAlbumArt, addMetadata } from '../services/metadata';
 import crypto from 'crypto';
 import { WebSocket } from 'ws';
+import { fetchVideoTitle } from '../services/TitleFetch';
 
 export const download = (clients: Map<string, WebSocket>) => {
     return async (req: Request, res: Response) => {
@@ -15,7 +16,10 @@ export const download = (clients: Map<string, WebSocket>) => {
         const downloadFilename = `download-filename.mp3`;
 
         const videoID = videoURL.substring(videoURL.indexOf('?v=') + 3, videoURL.indexOf('?v=') + 14);
-
+        const videoTitle = await fetchVideoTitle(`https://www.youtube.com/watch?v=${videoID}`);
+        console.log(`Downloading "${videoTitle}"\n\n`);
+        wsClient?.send(`Downloading "${videoTitle}"\n\n`);
+        
         const serveFile = (outputFilePath: string) => {
             const tempMetaFilePath = `/app/tmp/${crypto.randomUUID()}.mp3`;
 
