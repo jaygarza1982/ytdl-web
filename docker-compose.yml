@@ -2,6 +2,37 @@ version: '3'
 
 services:
 
+  ytdl-web-postgres:
+    image: postgres:16-alpine
+    container_name: "ytdl-web-postgres"
+    ports:
+      - 5432:5432
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
+    env_file: .env
+    healthcheck:
+      test: ["CMD-SHELL", "psql -U postgres -h localhost -c 'select 1'"]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+    restart: unless-stopped
+
+  ytdl-flyway:
+    image: flyway/flyway:10.15-alpine
+    container_name: "ytdl-flyway"
+    env_file: .env
+    environment:
+      FLYWAY_URL: jdbc:postgresql://ytdl-web-postgres/${POSTGRES_DB}
+      FLYWAY_USER: ${POSTGRES_USER}
+      FLYWAY_PASSWORD: ${POSTGRES_PASSWORD}
+      FLYWAY_BASELINE_ON_MIGRATE: "true"
+    depends_on:
+      ytdl-web-postgres:
+        condition: service_healthy
+    volumes:
+      - ./flyway:/flyway/sql
+    command: migrate
+
   ytdl-web-api:
     container_name: "ytdl-web-api"
     build:
@@ -16,6 +47,9 @@ services:
       driver: "json-file"
       options:
         max-size: "100m"
+    depends_on:
+      ytdl-flyway:
+        condition: service_completed_successfully
     restart: unless-stopped
 
   ytdl-web-web-server:
@@ -26,4 +60,6 @@ services:
           - ./web/nginx.conf:/etc/nginx/conf.d/default.conf
       ports:
           - 8050:80
+      depends_on:
+        - ytdl-web-api
       restart: unless-stopped

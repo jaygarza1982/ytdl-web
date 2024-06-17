@@ -6,6 +6,29 @@ import { WebSocketServer, WebSocket } from 'ws';
 import crypto from 'crypto';
 import multer from 'multer';
 import { updateYTDL } from './services/YTDLUpdater';
+import { Client } from 'pg';
+
+// Initial DB setup
+// TODO: Figure out how to pass client to routes like we do with clients map
+const { POSTGRES_DB, POSTGRES_USER, POSTGRES_PASSWORD } = process.env;
+const dbConfig = {
+    user: POSTGRES_USER,
+    password: POSTGRES_PASSWORD,
+    host: 'ytdl-web-postgres',
+    port: 5432,
+    database: POSTGRES_DB,
+};
+(async () => {
+    try {
+        const client: Client = new Client(dbConfig);
+        await client.connect()
+
+        console.log('SQL client connected successfully');
+
+    } catch (error) {
+        console.log('Could not do DB setup', error);
+    }
+})();
 
 // Update YTDL binary every 10 min
 setInterval(() => {
