@@ -32,7 +32,7 @@ const addMetadata = (params: IAddMetadataParams) => {
     const { inputFilePath, outputFilePath, metadata, ffmpegOut, ffmpegError, ffmpegExitSuccess, ffmpegExitFailure } = params;
     const { title, artist, album } = metadata;
 
-    let ffmpegCommand = `ffmpeg -i `;
+    let ffmpegCommand = `ffmpeg -hide_banner -i `;
     ffmpegCommand += `"${inputFilePath}" `;
     ffmpegCommand += `-c `;
     ffmpegCommand += `copy `;
@@ -81,7 +81,7 @@ const addMetadata = (params: IAddMetadataParams) => {
 const addAlbumArt = (params: IAddAlbumArtParams) => {
     const { inputFilePath, outputFilePath, artFilePath, ffmpegOut, ffmpegError, ffmpegExitSuccess, ffmpegExitFailure } = params;
 
-    let ffmpegCommand = `ffmpeg -i `;
+    let ffmpegCommand = `ffmpeg -hide_banner -i `;
     ffmpegCommand += `"${inputFilePath}" `;
     ffmpegCommand += `-i `;
     ffmpegCommand += `"${artFilePath}" `;
