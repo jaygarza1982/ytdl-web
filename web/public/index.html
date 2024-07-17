@@ -49,7 +49,12 @@
     </div>
 
     <div id="progress-bar">
-        <progress></progress>
+        <div class="loaded-values">
+            <div id="byte-value-loaded"></div>
+            <div style="text-align: center;">/</div>
+            <div id="byte-value-full"></div>
+        </div>
+        <progress id="progress-bar-progress" value="0" max="100"></progress>
     </div>
 
     <button id="download-btn" class="download-btn" type="button">Download</button>

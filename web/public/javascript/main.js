@@ -8,6 +8,22 @@ let clientUUID = '';
 
 const progressTerminal = document.getElementById('download-progress-terminal');
 
+function formatBytes(bytes, decimals = 2) {
+    if (!+bytes) return '0 Bytes'
+
+    const k = 1024
+    const dm = decimals < 0 ? 0 : decimals
+    const sizes = ['Bytes', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB', 'ZiB', 'YiB']
+
+    const i = Math.floor(Math.log(bytes) / Math.log(k))
+
+    return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`
+}
+
+const progressBarIncrement = (loaded, contentLength) => {
+    document.getElementById('progress-bar-progress').value = Math.round((loaded / contentLength) * 100);
+}
+
 // TODO: Pass this to download API to set the art. This should be the filename of the uploaded art
 let albumArtID = '';
 const fileInput = document.getElementById('image');
@@ -43,6 +59,12 @@ webSocket.onmessage = (event) => {
 const mp3Download = async () => {
     try {
         document.getElementById('progress-bar').style.display = 'block';
+        
+        // Start progress at 0
+        document.getElementById('progress-bar-progress').value = 0;
+        document.getElementById('byte-value-full').innerHTML = 0;
+        document.getElementById('byte-value-loaded').innerHTML = 0;
+        
         progressTerminal.innerText = '';
 
         const url = document.getElementById('url').value;
@@ -56,7 +78,30 @@ const mp3Download = async () => {
             throw new Error(`Download failed with status ${fetchResult.status} from server`);
         }
 
-        const fileBlob = await fetchResult.blob();
+        // Craft a stream in order to get download progress
+        const contentLength = parseInt(fetchResult.headers.get('Content-Length') || '0');
+        document.getElementById('byte-value-full').innerHTML = formatBytes(contentLength);
+
+        let loaded = 0;
+        const res = new Response(new ReadableStream({
+            async start(controller) {
+                const reader = fetchResult.body.getReader();
+                for (; ;) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+                    loaded += value.byteLength;
+
+                    // Update UI
+                    progressBarIncrement(loaded, contentLength);
+                    document.getElementById('byte-value-loaded').innerHTML = formatBytes(loaded);
+
+                    controller.enqueue(value);
+                }
+                controller.close();
+            },
+        }));
+
+        const fileBlob = await res.blob();
 
         const fileBlobURL = URL.createObjectURL(fileBlob);
         
